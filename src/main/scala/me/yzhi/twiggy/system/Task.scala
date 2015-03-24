@@ -2,15 +2,16 @@ package me.yzhi.twiggy.system
 
 /**
  */
-class Task {
-
+class Task(val opt :TaskOpt, val request: Boolean, val time: Int) {
 }
 
+sealed trait TaskOpt
+
 object Task {
-  case object TERMINATE
-  case object TERMINATE_CONFIRM
-  case object REPLY
-  case object MANAGE
-  case object CALL_CUSTOMER
-  case object HEARTBEATING
+  case object TERMINATE extends TaskOpt
+  case object TERMINATE_CONFIRM extends TaskOpt
+  case object REPLY extends TaskOpt
+  case object MANAGE extends TaskOpt
+  case object CALL_CUSTOMER extends TaskOpt
+  case object HEARTBEATING extends TaskOpt
 }

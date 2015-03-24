@@ -1,10 +1,10 @@
 package me.yzhi.twiggy.system
 
+import me.yzhi.twiggy.system.Node.NodeID
 
-class Node {
-
-}
 object Node {
+  type NodeID = String
+
   case object SERVER
   case object WORKER
   case object MANAGER
@@ -12,3 +12,8 @@ object Node {
   case object GROUP
   case object UNUSED
 }
+
+class Node(val id: NodeID) {
+}
+
+
