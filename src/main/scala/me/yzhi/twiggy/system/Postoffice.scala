@@ -1,10 +1,16 @@
 package me.yzhi.twiggy.system
 
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+
 /**
  */
 class Postoffice private {
   val yellowPages: YellowPages = _
   var app: AppContainer = _
+
+  val system = ActorSystem("Postoffice")
+  var receiver: ActorRef = _
+  var sender: ActorRef = _
 
   def start(args: Array[String]) = {
     yellowPages.init()
@@ -21,6 +27,9 @@ class Postoffice private {
         msg.recver = yellowPages.van.scheduler.id
         this.send(msg)
     }
+
+    receiver = system.actorOf(Props(new Receiver))
+    sender = system.actorOf(Props(new Sender))
   }
 
   def send(msg: Message) {
@@ -34,6 +43,16 @@ class Postoffice private {
     } else {
       // TODO: do not send, fake a reply mesage
     }
+  }
+
+  class Receiver extends Actor {
+    // TODO
+    override def receive: Receive = ???
+  }
+
+  class Sender extends Actor {
+    // TODO
+    override def receive: Receive = ???
   }
 }
 
