@@ -3,6 +3,9 @@ package me.yzhi.twiggy.system
 /**
  */
 class Task(val opt :TaskOpt, val request: Boolean, val time: Int) {
+  var customer: String = _
+  var mngApp: ManageApp = null
+  var mngNode: ManageNode = null
 }
 
 sealed trait TaskOpt

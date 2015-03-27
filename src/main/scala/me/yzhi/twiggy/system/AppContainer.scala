@@ -3,7 +3,7 @@ package me.yzhi.twiggy.system
 /**
  */
 trait AppContainer {
-
+  def name: String
 }
 
 object AppContainer {
