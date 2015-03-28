@@ -2,7 +2,7 @@ package me.yzhi.twiggy.system
 
 /**
  */
-trait AppContainer {
+trait AppContainer extends Customer {
   def name: String
 }
 

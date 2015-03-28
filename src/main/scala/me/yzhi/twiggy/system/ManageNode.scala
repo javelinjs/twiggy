@@ -2,9 +2,12 @@ package me.yzhi.twiggy.system
 
 import me.yzhi.twiggy.system.ManageNode.Command
 
+import scala.collection.immutable
+
 /**
  */
 class ManageNode(val cmd: Command) {
+  var nodes = immutable.Vector.empty[Node]
 }
 
 object ManageNode {

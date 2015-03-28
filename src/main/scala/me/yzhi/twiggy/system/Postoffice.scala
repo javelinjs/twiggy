@@ -15,7 +15,7 @@ class Postoffice private {
 
   def start(args: Array[String]) = {
     yellowPages.init()
-    yellowPages.van.myNode match {
+    myNode match {
       // FIXME
       case Node.SCHEDULER =>
         app = AppContainer.create(args)
@@ -24,6 +24,8 @@ class Postoffice private {
       case _ =>
         // connect to the scheduler, which will send back a create_app request
         val task = new Task(opt=Task.MANAGE, request=true, time=0)
+        task.mngNode = new ManageNode(ManageNode.CONNECT)
+        task.mngNode.nodes :+= myNode
         val msg = new Message(task)
         msg.recver = yellowPages.van.scheduler.id
         send(msg)
@@ -32,7 +34,7 @@ class Postoffice private {
     receiver = system.actorOf(Props(new Receiver))
     sender = system.actorOf(Props(new Sender))
 
-    yellowPages.van.myNode match {
+    myNode match {
       // FIXME
       case Node.SCHEDULER =>
         // add my node into app_
@@ -40,7 +42,7 @@ class Postoffice private {
         val task = new Task(opt=Task.MANAGE, request=true, time=0)
         task.customer = app.name
         task.mngNode = new ManageNode(ManageNode.ADD)
-        // TODO: *task.mutable_mng_node()->add_node() = myNode();
+        task.mngNode.nodes :+= myNode
         manageNode(task)
         // TODO: init other nodes
       case _ =>
@@ -54,7 +56,7 @@ class Postoffice private {
     mng.cmd match {
       case ManageNode.CONNECT =>
         // FIXME:
-        require(yellowPages.van.myNode == Node.SCHEDULER)
+        require(myNode == Node.SCHEDULER)
         // TODO: CHECK_EQ(mng.node_size(), 1);
         // first add this node into app
         val add = tk
@@ -68,7 +70,7 @@ class Postoffice private {
         task.customer = app.name
         task.mngApp = new ManageApp(ManageApp.ADD)
         task.mngApp.conf = appConf
-        //TODO: app_->port(mng.node(0).id())->submit(task);
+        app.port(mng.nodes.head.id).submit(task)
         // check if all nodes are connected
         /*
         if (yellowPages.num_workers() >= FLAGS_num_workers &&
@@ -107,6 +109,10 @@ class Postoffice private {
     } else {
       // TODO: do not send, fake a reply mesage
     }
+  }
+
+  private def myNode = {
+    yellowPages.van.myNode
   }
 
   class Receiver extends Actor {
