@@ -9,4 +9,8 @@ class Executor(val obj: Customer) {
     // TODO:
     null
   }
+
+  def add(node: Node): Unit = {
+    // TODO
+  }
 }

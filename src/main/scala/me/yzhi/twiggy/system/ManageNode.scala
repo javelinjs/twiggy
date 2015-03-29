@@ -11,8 +11,7 @@ class ManageNode(val cmd: Command) {
 }
 
 object ManageNode {
-  class Command {
-  }
+  sealed class Command
   case object CONNECT extends Command
   case object ADD extends Command
   case object UPDATE extends Command

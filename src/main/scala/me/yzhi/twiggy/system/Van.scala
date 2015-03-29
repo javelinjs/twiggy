@@ -10,6 +10,11 @@ class Van {
   def send(msg: Message, sendBytes: Int): Option[Status] = {
     None
   }
+
+  def connect(node: Node): Status = {
+    // TODO
+    null
+  }
 }
 
 object Van {

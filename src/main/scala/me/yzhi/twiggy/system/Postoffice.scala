@@ -14,6 +14,7 @@ class Postoffice private {
   var sender: ActorRef = _
 
   def start(args: Array[String]) = {
+    // TODO: parse args and store to CmdOptions
     yellowPages.init()
     myNode match {
       // FIXME
@@ -72,26 +73,24 @@ class Postoffice private {
         task.mngApp.conf = appConf
         app.port(mng.nodes.head.id).submit(task)
         // check if all nodes are connected
-        /*
-        if (yellowPages.num_workers() >= FLAGS_num_workers &&
-          yp().num_servers() >= FLAGS_num_servers) {
-          nodes_are_ready_.set_value();
+        if (yellowPages.numWorkers >= CmdOptions.numWorkers &&
+          yellowPages.numServers >= CmdOptions.numServers) {
+          // TODO: thread safe to set nodes_are_ready
+          // nodes_are_ready_.set_value();
         }
         tk.customer = app.name // otherwise the remote node doesn't know
-        */
         // how to find the according customer
       case ManageNode.ADD | ManageNode.UPDATE =>
-        /* TODO
-        auto obj = yp().customer(tk.customer());
-        CHECK(obj) << "customer [" << tk.customer() << "] doesn't exists";
-        for (int i = 0; i < mng.node_size(); ++i) {
-          auto node = mng.node(i);
-        yp().addNode(node);
-        obj->exec().add(node);
-        for (auto c : yp().childern(obj->name())) {
-        auto child = yp().customer(c);
-        if (child) child->exec().add(node);
-        */
+        val obj = yellowPages.customer(tk.customer)
+        require(obj != None, "customer [" + tk.customer + "] doesn't exists")
+        mng.nodes.foreach(node => {
+          yellowPages.addNode(node)
+          obj.get.exec.add(node)
+          yellowPages.children(obj.get.name).foreach(_.foreach(c => {
+            val child = yellowPages.customer(c)
+            child.foreach(_.exec.add(node))
+          }))
+        })
       case ManageNode.REPLACE =>
       case ManageNode.REMOVE =>
         // do nothing
