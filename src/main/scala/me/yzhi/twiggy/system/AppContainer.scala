@@ -10,4 +10,8 @@ object AppContainer {
   def create(args: Array[String]): AppContainer = {
     null
   }
+
+  def create(name: String, conf: String): AppContainer = {
+    null
+  }
 }

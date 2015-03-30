@@ -54,6 +54,11 @@ class Message { // [@spec(Double, Int, Float, Long) T] {
     // TODO
   }
 
+  def this(other: Message) {
+    this()
+    // TODO
+  }
+
   def miniCopyFrom(msg: Message) = {
     // TODO
   }

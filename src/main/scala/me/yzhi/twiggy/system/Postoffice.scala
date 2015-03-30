@@ -2,16 +2,25 @@ package me.yzhi.twiggy.system
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
+import scala.concurrent.Promise
+
 /**
  */
 class Postoffice private {
   val yellowPages: YellowPages = _
   var app: AppContainer = _
   var appConf: String = _
+  var appMsg: Message = _
+  var finishedNodes = 0
 
   val system = ActorSystem("Postoffice")
   var receiver: ActorRef = _
   var sender: ActorRef = _
+
+  val nodesAreDone = Promise[Unit]()
+  val nodesAreReady = Promise[Unit]()
+  val initAppPromise = Promise[Unit]()
+  val runAppPromise = Promise[Unit]()
 
   def start(args: Array[String]) = {
     // TODO: parse args and store to CmdOptions
@@ -51,6 +60,34 @@ class Postoffice private {
     }
   }
 
+  def manageApp(msg: Message): Unit = {
+    val tk = msg.task
+    require(tk.mngApp != null)
+    val cmd = tk.mngApp.cmd
+    cmd match {
+      case ManageApp.ADD =>
+        app = AppContainer.create(tk.customer, tk.mngApp.conf)
+        // yp().depositCustomer(app->name());
+      case ManageApp.INIT =>
+        msg.finished = false
+        if (appMsg == null) {
+          appMsg = new Message(msg)
+        }
+        initAppPromise.success()
+      case ManageApp.RUN =>
+        msg.finished = false
+        if (appMsg == null) {
+          appMsg = new Message(msg)
+        }
+        runAppPromise.success()
+      case ManageApp.DONE =>
+        finishedNodes += 1
+        if (finishedNodes >= CmdOptions.numWorkers + CmdOptions.numServers) {
+          nodesAreDone.success()
+        }
+    }
+  }
+
   def manageNode(tk: Task): Unit = {
     // CHECK(tk.has_mng_node());
     val mng = tk.mngNode
@@ -75,8 +112,7 @@ class Postoffice private {
         // check if all nodes are connected
         if (yellowPages.numWorkers >= CmdOptions.numWorkers &&
           yellowPages.numServers >= CmdOptions.numServers) {
-          // TODO: thread safe to set nodes_are_ready
-          // nodes_are_ready_.set_value();
+          nodesAreReady.success()
         }
         tk.customer = app.name // otherwise the remote node doesn't know
         // how to find the according customer
