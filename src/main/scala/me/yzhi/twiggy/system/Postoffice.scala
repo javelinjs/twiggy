@@ -1,6 +1,7 @@
 package me.yzhi.twiggy.system
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import me.yzhi.twiggy.util.FileUtils
 
 import scala.concurrent.Promise
 
@@ -28,9 +29,14 @@ class Postoffice private {
     myNode match {
       // FIXME
       case Node.SCHEDULER =>
+        if (CmdOptions.appFile.isEmpty) {
+          require(FileUtils.readFileToString(CmdOptions.appFile, appConf),
+            "failed to read conf file %s" format CmdOptions.appFile)
+        } else {
+          appConf = CmdOptions.appConf
+        }
         app = AppContainer.create(args)
-        // TODO
-        assert(app != null)
+        require(app != null, "failed to create %s with conf %s" format (CmdOptions.appName, CmdOptions.appConf))
       case _ =>
         // connect to the scheduler, which will send back a create_app request
         val task = new Task(opt=Task.MANAGE, request=true, time=0)
