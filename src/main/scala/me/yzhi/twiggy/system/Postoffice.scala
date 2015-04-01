@@ -61,6 +61,46 @@ class Postoffice private {
         task.mngNode.nodes :+= myNode
         manageNode(task)
         // TODO: init other nodes
+        if (CmdOptions.numWorkers + CmdOptions.numServers > 0) {
+          // TODO: timeout
+          nodesAreReady.future.wait()
+          // LI << "Scheduler has connected " << FLAGS_num_servers << " servers and "
+          // << FLAGS_num_workers << " workers";
+          // wait until app has been created at all computation nodes
+          app.port(PS.kCompGroup).waitOutgoingTask(1)
+
+          // add all nodes into app
+          val nodes = yellowPages.nodes
+          // TODO
+          // nodes = Postmaster::partitionServerKeyRange(nodes, Range<Key>::all());
+          // nodes = Postmaster::assignNodeRank(nodes);
+          // task.set_request(true);
+          val task = new Task(opt=Task.MANAGE, request=false, time=0)
+          task.customer = app.name
+          task.mngNode = new ManageNode(ManageNode.ADD)
+          // TODO nodes.foreach(n => task.mngNode :+= n)
+          // then add them in servers and worekrs
+          app.port(PS.kCompGroup).submitAndWait(task, null)
+
+          // init app
+          val init = new Task(opt=Task.MANAGE, request=false, time=0)
+          init.mngApp = new ManageApp(ManageApp.INIT)
+          val initWait = app.port(PS.kCompGroup).submit(init)
+          require(app != null)
+          app.init()
+          app.port(PS.kCompGroup).waitOutgoingTask(initWait)
+
+          // run app
+          val run = new Task(opt=Task.MANAGE, request=false, time=0)
+          run.mngApp = new ManageApp(ManageApp.RUN)
+          val runWait = app.port(PS.kCompGroup).submit(run)
+          app.run()
+          app.port(PS.kCompGroup).waitOutgoingTask(runWait)
+        } else {
+          require(app != null)
+          app.init()
+          app.run()
+        }
       case _ =>
         // TODO
     }

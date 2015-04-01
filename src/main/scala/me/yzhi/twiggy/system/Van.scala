@@ -1,5 +1,7 @@
 package me.yzhi.twiggy.system
 
+import me.yzhi.twiggy.system.Node.NodeID
+
 /**
  */
 class Van {
@@ -21,6 +23,9 @@ object Van {
   def parseNode(config: String) = {
     // FIXME
     new Node("")
+  }
+  def id(name: String): NodeID = {
+    name
   }
 }
 

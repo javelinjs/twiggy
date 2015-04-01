@@ -4,6 +4,8 @@ package me.yzhi.twiggy.system
  */
 trait AppContainer extends Customer {
   def name: String
+  def init(): Unit
+  def run(): Unit
 }
 
 object AppContainer {

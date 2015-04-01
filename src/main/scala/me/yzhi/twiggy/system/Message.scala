@@ -1,5 +1,6 @@
 package me.yzhi.twiggy.system
 
+import me.yzhi.twiggy.system.Message.Callback
 import me.yzhi.twiggy.system.Node.NodeID
 
 import scala.{specialized => spec}
@@ -7,8 +8,6 @@ import scala.{specialized => spec}
 /**
   */
 class Message { // [@spec(Double, Int, Float, Long) T] {
-  type Callback = () => Unit
-
   var task: Task = _
 
   // sender node id
@@ -32,7 +31,7 @@ class Message { // [@spec(Double, Int, Float, Long) T] {
   // wait or not when submit this message
   var doWait = false
 
-  var callback: () => Unit = _
+  var callback: Callback = _
 
   // *recv_handle* will be called if anythings goes back from the destination
   // node. When called, this task has not been marked as finished. If could be
@@ -62,4 +61,8 @@ class Message { // [@spec(Double, Int, Float, Long) T] {
   def miniCopyFrom(msg: Message) = {
     // TODO
   }
+}
+
+object Message {
+  type Callback = () => Unit
 }
