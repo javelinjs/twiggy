@@ -2,16 +2,16 @@ package me.yzhi.twiggy.system
 
 import me.yzhi.twiggy.system.Node.NodeID
 
-import scala.collection.mutable.Map
+import scala.collection.mutable
 
 /**
  */
 class YellowPages {
-  var van: Van = _
+  var van: Van = new Van()
 
-  val customers = Map[String, (Customer, Boolean)]()
-  val relations = Map[String, Vector[String]]()
-  val nodes = Map[NodeID, Node]()
+  val customers_ = mutable.Map[String, (Customer, Boolean)]()
+  val relations_ = mutable.Map[String, Vector[String]]()
+  val nodes_ = mutable.Map[NodeID, Node]()
 
   var numWorkers_ = 0
   var numServers_ = 0
@@ -26,7 +26,7 @@ class YellowPages {
   def numServers = numServers_
 
   def customer(name: String): Option[Customer] = {
-    customers.get(name) match {
+    customers_.get(name) match {
       case Some((first:Customer, second:Boolean)) => Some(first)
       case _ => None
     }
@@ -40,10 +40,14 @@ class YellowPages {
         case Node.SERVER => numServers_ += 1
       }
     }
-    nodes.put(node.id, node)
+    nodes_.put(node.id, node)
   }
 
   def children(parent: String) = {
-    relations.get(parent)
+    relations_.get(parent)
+  }
+
+  def nodes = {
+    Vector() ++ nodes_.values
   }
 }

@@ -2,6 +2,8 @@ package me.yzhi.twiggy.system
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import me.yzhi.twiggy.util.FileUtils
+import me.yzhi.twiggy.util.PS.Key
+import me.yzhi.twiggy.util.Range
 
 import scala.concurrent.Promise
 
@@ -70,10 +72,9 @@ class Postoffice private {
           app.port(PS.kCompGroup).waitOutgoingTask(1)
 
           // add all nodes into app
-          val nodes = yellowPages.nodes
-          // TODO
-          // nodes = Postmaster::partitionServerKeyRange(nodes, Range<Key>::all());
-          // nodes = Postmaster::assignNodeRank(nodes);
+          var nodes = yellowPages.nodes
+          nodes = Postmaster.partitionServerKeyRange(nodes, Range.all[Key])
+          nodes = Postmaster.assignNodeRank(nodes)
           // task.set_request(true);
           val task = new Task(opt=Task.MANAGE, request=false, time=0)
           task.customer = app.name
