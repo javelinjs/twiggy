@@ -1,6 +1,7 @@
 package me.yzhi.twiggy.system
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import me.yzhi.twiggy.system.Node.NodeID
 import me.yzhi.twiggy.util.FileUtils
 import me.yzhi.twiggy.util.PS.Key
 import me.yzhi.twiggy.util.Range
@@ -45,7 +46,7 @@ class Postoffice private {
         task.mngNode = new ManageNode(ManageNode.CONNECT)
         task.mngNode.nodes :+= myNode
         val msg = new Message(task)
-        msg.recver = yellowPages.van.scheduler.id
+        msg.recver = yellowPages._van.scheduler.id
         send(msg)
     }
 
@@ -79,8 +80,8 @@ class Postoffice private {
           val task = new Task(opt=Task.MANAGE, request=false, time=0)
           task.customer = app.name
           task.mngNode = new ManageNode(ManageNode.ADD)
-          // TODO nodes.foreach(n => task.mngNode :+= n)
-          // then add them in servers and worekrs
+          nodes.foreach(n => task.mngNode.nodes :+= n)
+          // then add them in servers and workers
           app.port(PS.kCompGroup).submitAndWait(task, null)
 
           // init app
@@ -103,8 +104,38 @@ class Postoffice private {
           app.run()
         }
       case _ =>
-        // TODO
+        // init app
+        initAppPromise.future.wait()
+        app.init()
+        appMsg.finished = true
+        finish(appMsg)
+
+        // run app
+        runAppPromise.future.wait()
+        app.run()
+        appMsg.finished = true
+        finish(appMsg)
     }
+  }
+
+  def finish(msg: Message): Unit = {
+    if (msg.finished) {
+      val obj = yellowPages.customer(msg.task.customer)
+      obj.foreach(_.exec.finish(msg))
+      reply(msg.sender, msg.task)
+    }
+  }
+
+  def reply(recver: NodeID, task: Task, replyMsg: String = ""): Unit = {
+    if (!task.request) return
+    val tk = new Task(opt=Task.REPLY, request=false, time=task.time)
+    tk.customer = task.customer
+    if (!replyMsg.isEmpty) {
+      tk.setMessage(replyMsg)
+    }
+    val re = new Message(tk)
+    re.recver = recver
+    send(re)
   }
 
   def manageApp(msg: Message): Unit = {
@@ -182,7 +213,7 @@ class Postoffice private {
 
   def send(msg: Message) {
     if (msg.valid && !msg.terminate) {
-      val stat = yellowPages.van.send(msg, 0)
+      val stat = yellowPages._van.send(msg, 0)
       for (s <- stat if s.ok) {
         // heartbeat_info_.increaseOutBytes(send_bytes);
         return
@@ -194,7 +225,7 @@ class Postoffice private {
   }
 
   private def myNode = {
-    yellowPages.van.myNode
+    yellowPages._van.myNode
   }
 
   class Receiver extends Actor {

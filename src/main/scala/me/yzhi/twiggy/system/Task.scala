@@ -6,6 +6,11 @@ class Task(val opt :TaskOpt, val request: Boolean, val time: Int) {
   var customer: String = _
   var mngApp: ManageApp = null
   var mngNode: ManageNode = null
+  var msg: String = _
+
+  def setMessage(msg: String): Unit = {
+    // TODO
+  }
 }
 
 sealed trait TaskOpt

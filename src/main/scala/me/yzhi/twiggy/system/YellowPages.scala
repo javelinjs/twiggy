@@ -7,47 +7,47 @@ import scala.collection.mutable
 /**
  */
 class YellowPages {
-  var van: Van = new Van()
+  var _van: Van = new Van()
 
-  val customers_ = mutable.Map[String, (Customer, Boolean)]()
-  val relations_ = mutable.Map[String, Vector[String]]()
-  val nodes_ = mutable.Map[NodeID, Node]()
+  val _customers = mutable.Map[String, (Customer, Boolean)]()
+  val _relations = mutable.Map[String, Vector[String]]()
+  val _nodes = mutable.Map[NodeID, Node]()
 
-  var numWorkers_ = 0
-  var numServers_ = 0
+  var _numWorkers = 0
+  var _numServers = 0
 
   def init(): Unit = {
     // TODO
-    van = new Van
+    _van = new Van
   }
 
-  def numWorkers = numWorkers_
+  def numWorkers = _numWorkers
 
-  def numServers = numServers_
+  def numServers = _numServers
 
   def customer(name: String): Option[Customer] = {
-    customers_.get(name) match {
+    _customers.get(name) match {
       case Some((first:Customer, second:Boolean)) => Some(first)
       case _ => None
     }
   }
 
   def addNode(node: Node): Unit = {
-    if (!nodes.contains(node.id)) {
-      require(van.connect(node).ok)
+    if (!_nodes.contains(node.id)) {
+      require(_van.connect(node).ok)
       node.role match {
-        case Node.WORKER => numWorkers_ += 1
-        case Node.SERVER => numServers_ += 1
+        case Node.WORKER => _numWorkers += 1
+        case Node.SERVER => _numServers += 1
       }
     }
-    nodes_.put(node.id, node)
+    _nodes.put(node.id, node)
   }
 
   def children(parent: String) = {
-    relations_.get(parent)
+    _relations.get(parent)
   }
 
   def nodes = {
-    Vector() ++ nodes_.values
+    Vector() ++ _nodes.values
   }
 }

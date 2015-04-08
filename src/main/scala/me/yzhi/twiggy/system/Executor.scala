@@ -13,6 +13,10 @@ class Executor(val obj: Customer) {
   def add(node: Node): Unit = {
     // TODO
   }
+
+  def finish(msg: Message): Unit = {
+    // TODO
+  }
 }
 
 package object PS {
