@@ -2,7 +2,7 @@ package me.yzhi.twiggy.system
 
 /**
  */
-class Task(val opt :TaskOpt, val request: Boolean, val time: Int) {
+class Task(val opt :TaskOpt, val request: Boolean = false, val time: Int = 0) {
   var customer: String = _
   var mngApp: ManageApp = null
   var mngNode: ManageNode = null

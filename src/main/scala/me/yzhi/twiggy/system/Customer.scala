@@ -13,4 +13,9 @@ class Customer(val name: String) {
     require(rnode != null)
     rnode
   }
+
+  def schedulerID: NodeID = {
+    // TODO
+    null
+  }
 }

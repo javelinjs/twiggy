@@ -2,9 +2,8 @@ package me.yzhi.twiggy.system
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import me.yzhi.twiggy.system.Node.NodeID
-import me.yzhi.twiggy.util.FileUtils
 import me.yzhi.twiggy.util.PS.Key
-import me.yzhi.twiggy.util.Range
+import me.yzhi.twiggy.util.{FileUtils, Range}
 
 import scala.concurrent.Promise
 
@@ -20,6 +19,7 @@ class Postoffice private {
   val system = ActorSystem("Postoffice")
   var receiver: ActorRef = _
   var sender: ActorRef = _
+  var _done: Boolean = false
 
   val nodesAreDone = Promise[Unit]()
   val nodesAreReady = Promise[Unit]()
@@ -115,6 +115,26 @@ class Postoffice private {
         app.run()
         appMsg.finished = true
         finish(appMsg)
+    }
+  }
+
+  def stop(): Unit = {
+    myNode match {
+      // FIXME
+      case Node.SCHEDULER =>
+        if (CmdOptions.numWorkers + CmdOptions.numServers > 0) {
+          nodesAreDone.future.wait()
+        }
+        val terminate = new Task(opt=Task.TERMINATE)
+        app.port(PS.kLiveGroup).submit(terminate)
+        Thread.sleep(800)
+        // TODO: LI << "System stopped\n";
+      case _ =>
+        val done = new Task(opt=Task.MANAGE)
+        done.mngApp = new ManageApp(ManageApp.DONE)
+        app.port(app.schedulerID).submit(done)
+        // run as a daemon until received the termination messag
+        while (!_done) Thread.sleep(300)
     }
   }
 
