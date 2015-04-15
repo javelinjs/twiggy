@@ -233,7 +233,7 @@ class Postoffice private {
 
   def send(msg: Message) {
     if (msg.valid && !msg.terminate) {
-      val stat = yellowPages._van.send(msg, 0)
+      val stat = yellowPages._van.send(msg)
       for (s <- stat if s.ok) {
         // heartbeat_info_.increaseOutBytes(send_bytes);
         return
