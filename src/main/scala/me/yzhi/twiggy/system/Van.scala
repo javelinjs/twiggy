@@ -7,10 +7,21 @@ import me.yzhi.twiggy.system.Node.NodeID
  */
 class Van {
   // TODO
-  val myNode: Node = _
-  val scheduler: Node = _
+  var myNode: Node = _
+  var scheduler: Node = _
 
   def init(): Unit = {
+    scheduler = Van.parseNode(CmdOptions.scheduler)
+    if (CmdOptions.myRank < 0) {
+      myNode = Van.parseNode(CmdOptions.myNode)
+    } else {
+      myNode = assembleMyNode()
+    }
+
+    // LI << "I am [" << my_node_.ShortDebugString() << "]; pid:" << getpid();
+
+    connect(myNode)
+    connect(scheduler)
   }
 
   def destroy(): Unit = {
@@ -34,6 +45,10 @@ class Van {
 
   // print statistic info
   def statistic(): Unit = {
+  }
+
+  def assembleMyNode(): Node = {
+    null
   }
 }
 
