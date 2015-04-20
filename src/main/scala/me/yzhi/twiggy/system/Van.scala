@@ -1,5 +1,6 @@
 package me.yzhi.twiggy.system
 
+import akka.actor.ActorSystem
 import me.yzhi.twiggy.system.Node.NodeID
 
 /**
@@ -9,6 +10,7 @@ class Van {
   // TODO
   var myNode: Node = _
   var scheduler: Node = _
+  var system = ActorSystem("TwiggyActorSystem")
 
   def init(): Unit = {
     scheduler = Van.parseNode(CmdOptions.scheduler)
